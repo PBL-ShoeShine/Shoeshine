@@ -10,6 +10,7 @@ const pageTitles = {
   "/profile": "Profil Saya",
   "/users": "Data Pengguna",
   "/stores": "Daftar Toko",
+  "/store-registration": "Pendaftaran Toko",
   "/verification": "Verifikasi Pendaftaran",
   "/reviews": "Review",
 };
@@ -52,20 +53,20 @@ export default function Navbar() {
         <h2 className="text-xl font-bold text-slate-900 md:text-2xl">
           {pageTitles[pathname] || "Dashboard Statistik"}
         </h2>
-        <p className="mt-1 text-sm text-slate-500">Ringkasan operasional SuperAdmin</p>
+        <p className="mt-1 text-sm text-slate-500">Workspace CareKicks</p>
       </div>
 
       <div className="flex items-center gap-3">
         <div className="hidden text-right sm:block">
           <p className="text-sm font-bold text-slate-900">
-            {user?.name || user?.username || "SuperAdmin"}
+            {user?.nama || user?.name || user?.username || "Pengguna"}
           </p>
           <p className="text-xs font-medium text-slate-500">
-            {user?.email || "admin@shoeshine.id"}
+            {user?.email || "-"}
           </p>
         </div>
         <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#3f83f8] text-sm font-bold text-white shadow-sm">
-          SA
+          {(user?.nama || user?.username || "U").slice(0, 2).toUpperCase()}
         </div>
         <button
           type="button"

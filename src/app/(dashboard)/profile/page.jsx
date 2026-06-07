@@ -7,7 +7,7 @@ import ProfileForm from "@/components/profile/ProfileForm";
 
 const adminProfile = {
   name: "Nama Superadmin",
-  email: "superadmin@shoeshine.com",
+  email: "superadmin@mail.com",
   role: "Master Access",
   joinedAt: "Okt 2023",
   avatar: "/images/avatar.jpg",
@@ -154,9 +154,7 @@ export default function ProfilePage() {
       ? "bg-red-600 hover:bg-red-700"
       : "bg-[#0f172a] hover:bg-slate-700";
   const popupShadowClass =
-    popupMessage.type === "error"
-      ? "shadow-red-100/70"
-      : "shadow-blue-100/60";
+    popupMessage.type === "error" ? "shadow-red-100/70" : "shadow-blue-100/60";
 
   return (
     <div className="mx-auto w-full max-w-6xl">

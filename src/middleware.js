@@ -5,6 +5,7 @@ const protectedRoutes = [
   "/profile",
   "/users",
   "/stores",
+  "/store-registration",
   "/verification",
   "/reviews",
 ];
@@ -28,5 +29,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/profile/:path*", "/users/:path*", "/stores/:path*", "/verification/:path*", "/reviews/:path*", "/login"],
+  matcher: ["/dashboard/:path*", "/profile/:path*", "/users/:path*", "/stores/:path*", "/store-registration/:path*", "/verification/:path*", "/reviews/:path*", "/login"],
 };
