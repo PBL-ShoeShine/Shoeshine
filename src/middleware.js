@@ -8,6 +8,7 @@ const protectedRoutes = [
   "/store-registration",
   "/verification",
   "/reviews",
+  "/superadmin/shop-appeals",
 ];
 
 export function middleware(request) {
@@ -24,7 +25,13 @@ export function middleware(request) {
   }
 
   if (pathname === "/login" && token) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    if (role === "superadmin") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
+    if (role === "customer" || role === "shops_admin") {
+      return NextResponse.redirect(new URL("/store-registration", request.url));
+    }
   }
 
   if (
@@ -36,9 +43,22 @@ export function middleware(request) {
     return NextResponse.redirect(new URL("/suspended", request.url));
   }
 
+  if (
+    token &&
+    (role === "customer" || role === "shops_admin") &&
+    isProtected &&
+    pathname !== "/store-registration"
+  ) {
+    return NextResponse.redirect(new URL("/store-registration", request.url));
+  }
+
+  if (token && role === "staff" && isProtected) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/profile/:path*", "/users/:path*", "/stores/:path*", "/store-registration/:path*", "/verification/:path*", "/reviews/:path*", "/login"],
+  matcher: ["/dashboard/:path*", "/profile/:path*", "/users/:path*", "/stores/:path*", "/store-registration/:path*", "/verification/:path*", "/reviews/:path*", "/superadmin/shop-appeals/:path*", "/login"],
 };

@@ -63,6 +63,30 @@ export function clearAuth() {
   Cookies.remove(SHOP_STATUS_KEY);
 }
 
+export function updateAuthShop(shop) {
+  if (!isBrowser() || !shop) return;
+
+  const user = getUser();
+  const nextUser = {
+    ...(user || {}),
+    id_shops: shop.id_shops || user?.id_shops,
+    shop,
+  };
+
+  localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+
+  if (shop.status_verifikasi) {
+    Cookies.set(SHOP_STATUS_KEY, shop.status_verifikasi, {
+      expires: 1,
+      sameSite: "lax",
+    });
+  }
+
+  if (String(shop.status_verifikasi || "").toLowerCase() !== "suspended") {
+    localStorage.removeItem(SUSPENDED_SHOP_KEY);
+  }
+}
+
 export function isAuthenticated() {
   return Boolean(getToken());
 }

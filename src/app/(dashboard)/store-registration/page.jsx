@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { CheckCircle2, FileImage, Store, Upload, XCircle } from "lucide-react";
+import { getUser, updateAuthShop } from "@/lib/auth";
 import { getMyStoreRegistration, registerStore } from "@/services/registration.service";
 
 const initialForm = {
@@ -20,6 +21,7 @@ const statusClass = {
 
 export default function StoreRegistrationPage() {
   const [registration, setRegistration] = useState(null);
+  const [role, setRole] = useState(null);
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -31,7 +33,11 @@ export default function StoreRegistrationPage() {
       setLoading(true);
       setError("");
       const response = await getMyStoreRegistration();
-      setRegistration(response?.data || null);
+      const shop = response?.data || null;
+      setRegistration(shop);
+      if (shop) {
+        updateAuthShop(shop);
+      }
     } catch (err) {
       setError(err?.response?.data?.message || err?.message || "Gagal memuat status pendaftaran.");
     } finally {
@@ -41,6 +47,8 @@ export default function StoreRegistrationPage() {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
+      const user = getUser();
+      setRole(user?.jenis_role || user?.role || null);
       loadRegistration();
     }, 0);
 
@@ -76,7 +84,8 @@ export default function StoreRegistrationPage() {
 
   const status = String(registration?.status_verifikasi || "").toLowerCase();
   const hasRegistration = Boolean(registration);
-  const canRegister = !hasRegistration;
+  const hasOwnedStore = role === "shops_admin" && hasRegistration;
+  const canRegister = role !== "shops_admin" && !hasRegistration;
 
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-6 xl:grid-cols-[1fr_360px]">
@@ -111,6 +120,10 @@ export default function StoreRegistrationPage() {
           <div className="py-16 text-center text-sm font-semibold text-slate-500">
             Memuat data pendaftaran...
           </div>
+        ) : hasOwnedStore ? (
+          <OwnedStoreCard store={registration} status={status} />
+        ) : role === "shops_admin" ? (
+          <OwnedStoreMissingCard />
         ) : canRegister ? (
           <form className="grid gap-5" onSubmit={handleSubmit}>
             <label className="grid gap-2">
@@ -166,11 +179,7 @@ export default function StoreRegistrationPage() {
             </button>
           </form>
         ) : (
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">
-            <p className="text-sm font-semibold text-slate-700">
-              Kamu sudah memiliki data pendaftaran toko. Pengajuan baru tidak tersedia untuk status saat ini.
-            </p>
-          </div>
+          <RegistrationLockedCard registration={registration} />
         )}
       </section>
 
@@ -195,6 +204,71 @@ export default function StoreRegistrationPage() {
           </p>
         )}
       </aside>
+    </div>
+  );
+}
+
+function OwnedStoreMissingCard() {
+  return (
+    <div className="rounded-lg border border-amber-200 bg-amber-50 p-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-white text-amber-700 shadow-sm">
+          <XCircle className="h-6 w-6" aria-hidden="true" />
+        </div>
+        <div>
+          <p className="text-lg font-bold text-slate-900">Data toko belum ditemukan</p>
+          <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-slate-600">
+            Akun ini sudah berperan sebagai admin toko, tetapi data toko belum berhasil dimuat.
+            Silakan muat ulang halaman atau hubungi SuperAdmin jika masalah tetap terjadi.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OwnedStoreCard({ store, status }) {
+  return (
+    <div className="rounded-lg border border-blue-100 bg-blue-50 p-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-white text-blue-700 shadow-sm">
+          <CheckCircle2 className="h-6 w-6" aria-hidden="true" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-lg font-bold text-slate-900">Kamu sudah memiliki toko</p>
+          <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-slate-600">
+            Akun ini sudah terhubung dengan toko, jadi form pendaftaran toko baru tidak tersedia.
+          </p>
+
+          <div className="mt-5 grid gap-3 rounded-lg border border-blue-100 bg-white p-4 sm:grid-cols-3">
+            <div className="sm:col-span-2">
+              <p className="text-xs font-bold uppercase text-slate-400">Nama toko</p>
+              <p className="mt-1 truncate text-sm font-bold text-slate-900">{store.nm_toko || "-"}</p>
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase text-slate-400">Status</p>
+              <span className={`mt-1 inline-flex rounded-full border px-3 py-1 text-xs font-bold uppercase ${statusClass[status] || "border-slate-200 bg-slate-50 text-slate-600"}`}>
+                {store.status_verifikasi || "-"}
+              </span>
+            </div>
+            <div className="sm:col-span-3">
+              <p className="text-xs font-bold uppercase text-slate-400">Spesialisasi</p>
+              <p className="mt-1 text-sm font-semibold text-slate-700">{store.spesialisasi || "-"}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RegistrationLockedCard({ registration }) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">
+      <p className="text-sm font-semibold text-slate-700">
+        Kamu sudah memiliki data pendaftaran toko untuk {registration?.nm_toko || "toko ini"}.
+        Pengajuan baru tidak tersedia untuk status saat ini.
+      </p>
     </div>
   );
 }

@@ -1,11 +1,12 @@
 export default function ProfileForm({
   name,
   email,
-  password,
+  noHp,
   avatar,
+  saving,
   onNameChange,
   onEmailChange,
-  onPasswordChange,
+  onNoHpChange,
   onAvatarChange,
   onSubmit,
 }) {
@@ -16,7 +17,7 @@ export default function ProfileForm({
     >
       <section>
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
-          Informasi Personal
+          Informasi Akun
         </p>
 
         <div className="mt-6 grid gap-5">
@@ -50,6 +51,7 @@ export default function ProfileForm({
               value={name}
               onChange={(event) => onNameChange(event.target.value)}
               className="mt-2 h-12 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
+              required
             />
           </label>
 
@@ -62,40 +64,30 @@ export default function ProfileForm({
               value={email}
               onChange={(event) => onEmailChange(event.target.value)}
               className="mt-2 h-12 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
+              required
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
+              Nomor HP
+            </span>
+            <input
+              value={noHp}
+              onChange={(event) => onNoHpChange(event.target.value)}
+              className="mt-2 h-12 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
             />
           </label>
         </div>
       </section>
 
-      <section className="mt-8 border-t border-slate-100 pt-8">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
-          Keamanan
-        </p>
-
-        <label className="mt-6 block">
-          <span className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
-            Password Baru
-          </span>
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => onPasswordChange(event.target.value)}
-            placeholder="Masukkan password baru"
-            className="mt-2 h-12 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
-          />
-        </label>
-
-        <p className="mt-2 text-xs font-medium text-slate-500">
-          Biarkan kosong jika tidak ingin mengubah password.
-        </p>
-      </section>
-
       <div className="mt-8 flex justify-end">
         <button
           type="submit"
-          className="h-11 rounded-md bg-[#0f172a] px-5 text-sm font-bold text-white transition hover:bg-slate-700"
+          disabled={saving}
+          className="h-11 rounded-md bg-[#0f172a] px-5 text-sm font-bold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          Simpan Perubahan
+          {saving ? "Menyimpan..." : "Simpan Perubahan"}
         </button>
       </div>
     </form>

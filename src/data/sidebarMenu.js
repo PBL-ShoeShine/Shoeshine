@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   MessageSquareText,
+  RotateCcw,
   ShieldCheck,
   Store,
   User,
@@ -42,12 +43,18 @@ export const sidebarMenu = [
     label: "Pendaftaran Toko",
     href: "/store-registration",
     icon: Store,
-    roles: ["customer"],
+    roles: ["customer", "shops_admin"],
   },
   {
     label: "Review",
     href: "/reviews",
     icon: MessageSquareText,
+    roles: ["superadmin"],
+  },
+  {
+    label: "Banding Toko",
+    href: "/superadmin/shop-appeals",
+    icon: RotateCcw,
     roles: ["superadmin"],
   },
 ];

@@ -4,10 +4,18 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar/Navbar";
 import Sidebar from "@/components/sidebar/Sidebar";
-import { getUser, isAuthenticated } from "@/lib/auth";
+import { clearAuth, getUser, isAuthenticated } from "@/lib/auth";
 
-const customerRoutes = ["/store-registration"];
-const superadminRoutes = ["/dashboard", "/profile", "/users", "/stores", "/verification", "/reviews"];
+const shopRegistrationRoutes = ["/store-registration"];
+const superadminRoutes = [
+  "/dashboard",
+  "/profile",
+  "/users",
+  "/stores",
+  "/verification",
+  "/reviews",
+  "/superadmin/shop-appeals",
+];
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
@@ -22,13 +30,22 @@ export default function DashboardLayout({ children }) {
     const role = user?.jenis_role || user?.role;
     const pathname = window.location.pathname;
 
-    if (role === "customer" && !customerRoutes.some((route) => pathname.startsWith(route))) {
-      router.replace("/store-registration");
+    if (role === "staff") {
+      clearAuth();
+      router.replace("/login");
       return;
     }
 
     if (role === "shops_admin" && user?.shop?.status_verifikasi === "suspended") {
       router.replace("/suspended");
+      return;
+    }
+
+    if (
+      ["customer", "shops_admin"].includes(role) &&
+      !shopRegistrationRoutes.some((route) => pathname.startsWith(route))
+    ) {
+      router.replace("/store-registration");
       return;
     }
 

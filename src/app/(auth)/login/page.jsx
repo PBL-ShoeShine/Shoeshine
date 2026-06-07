@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { LockKeyhole, Mail, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { login } from "@/services/auth.service";
-import { isAuthenticated, saveAuth, saveSuspendedShop } from "@/lib/auth";
+import { getUser, isAuthenticated, saveAuth, saveSuspendedShop } from "@/lib/auth";
 
 function normalizeLoginResponse(data) {
   const token = data?.token || data?.accessToken || data?.data?.token || data?.data?.accessToken;
@@ -22,7 +22,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated()) {
-      router.replace("/dashboard");
+      const user = getUser();
+      const role = user?.jenis_role || user?.role;
+      router.replace(role === "superadmin" ? "/dashboard" : "/store-registration");
     }
   }, [router]);
 
@@ -45,8 +47,23 @@ export default function LoginPage() {
         throw new Error("Token login tidak ditemukan dari response backend.");
       }
 
+      if (role === "staff") {
+        throw new Error("Akun staff tidak dapat login melalui website.");
+      }
+
       saveAuth(token, user);
-      router.replace(role === "customer" ? "/store-registration" : "/dashboard");
+      if (
+        role === "shops_admin" &&
+        String(user?.shop?.status_verifikasi || "").toLowerCase() === "suspended"
+      ) {
+        saveSuspendedShop(user.shop);
+        router.replace("/suspended");
+        return;
+      }
+
+      router.replace(
+        role === "superadmin" ? "/dashboard" : "/store-registration",
+      );
     } catch (err) {
       if (err?.response?.data?.code === "SHOP_SUSPENDED") {
         saveSuspendedShop(err.response.data.data);
