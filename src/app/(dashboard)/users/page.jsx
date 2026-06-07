@@ -191,21 +191,9 @@ export default function UsersPage() {
   return (
     <div className="mx-auto w-full max-w-7xl">
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-[#263238]">Manajemen Pengguna</h1>
-          <p className="mt-2 text-sm font-medium text-[#6b7280]">
-            Kelola akses dan informasi personil ShoeShine
-          </p>
-        </div>
+      
 
-        <div className="w-full rounded-xl border border-blue-100 bg-white px-6 py-4 shadow-sm lg:w-60">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#6b7280]">
-            Total Pengguna
-          </p>
-          <p className="mt-2 text-3xl font-bold text-[#263238]">
-            {pagination.total.toLocaleString("id-ID")}
-          </p>
-        </div>
+       
       </div>
 
       {error ? (

@@ -53,7 +53,7 @@ export default function Navbar() {
         <h2 className="text-xl font-bold text-slate-900 md:text-2xl">
           {pageTitles[pathname] || "Dashboard Statistik"}
         </h2>
-        <p className="mt-1 text-sm text-slate-500">Workspace CareKicks</p>
+        <p className="mt-1 text-sm text-slate-500">Workspace Shoeshine</p>
       </div>
 
       <div className="flex items-center gap-3">

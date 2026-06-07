@@ -64,12 +64,7 @@ export default function VerificationPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-900">Verifikasi Pendaftaran</h1>
-        <p className="mt-2 text-sm font-medium text-slate-500">
-          Tinjau pendaftaran toko dari customer.
-        </p>
-      </div>
+    
 
       {error ? (
         <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">

@@ -73,15 +73,7 @@ export default function StoresPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl">
-      <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Daftar Toko</h1>
-          <p className="mt-2 text-sm font-medium text-slate-500">
-            Kelola dan monitor semua mitra toko ShoeShine yang terdaftar.
-          </p>
-        </div>
-        <StoreStats stats={stats} />
-      </div>
+      <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between"></div>
 
       {error ? (
         <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
