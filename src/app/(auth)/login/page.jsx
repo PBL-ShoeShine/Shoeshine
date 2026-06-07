@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { LockKeyhole, Mail, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { login } from "@/services/auth.service";
-import { isAuthenticated, saveAuth } from "@/lib/auth";
+import { isAuthenticated, saveAuth, saveSuspendedShop } from "@/lib/auth";
 
 function normalizeLoginResponse(data) {
   const token = data?.token || data?.accessToken || data?.data?.token || data?.data?.accessToken;
@@ -48,6 +48,12 @@ export default function LoginPage() {
       saveAuth(token, user);
       router.replace(role === "customer" ? "/store-registration" : "/dashboard");
     } catch (err) {
+      if (err?.response?.data?.code === "SHOP_SUSPENDED") {
+        saveSuspendedShop(err.response.data.data);
+        router.replace("/suspended");
+        return;
+      }
+
       const message =
         err?.response?.data?.message ||
         err?.response?.data?.error ||

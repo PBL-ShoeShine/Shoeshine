@@ -27,6 +27,11 @@ export default function DashboardLayout({ children }) {
       return;
     }
 
+    if (role === "shops_admin" && user?.shop?.status_verifikasi === "suspended") {
+      router.replace("/suspended");
+      return;
+    }
+
     if (role === "superadmin" && !superadminRoutes.some((route) => pathname.startsWith(route))) {
       router.replace("/dashboard");
     }
