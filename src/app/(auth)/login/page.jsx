@@ -45,12 +45,17 @@ export default function LoginPage() {
         throw new Error("Token login tidak ditemukan dari response backend.");
       }
 
-      if (role && role !== "superadmin") {
-        throw new Error("Akun ini tidak memiliki akses SuperAdmin.");
-      }
-
       saveAuth(token, user);
-      router.replace("/dashboard");
+
+      if (role === "customer" && user?.has_pending_shop) {
+        router.replace("/toko-saya");
+      } else if (role === "customer") {
+        router.replace("/daftar-toko");
+      } else if (role === "shops_admin") {
+        router.replace("/toko-saya");
+      } else {
+        router.replace("/dashboard");
+      }
     } catch (err) {
       const message =
         err?.response?.data?.message ||
