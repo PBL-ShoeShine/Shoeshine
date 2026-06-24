@@ -48,13 +48,13 @@ export default function LoginPage() {
       saveAuth(token, user);
 
       if (role === "customer" && user?.has_pending_shop) {
-        router.replace("/toko-saya");
+        window.location.replace("/toko-saya");
       } else if (role === "customer") {
-        router.replace("/daftar-toko");
+        window.location.replace("/daftar-toko");
       } else if (role === "shops_admin") {
-        router.replace("/toko-saya");
+        window.location.replace("/toko-saya");
       } else {
-        router.replace("/dashboard");
+        window.location.replace("/dashboard");
       }
     } catch (err) {
       const message =

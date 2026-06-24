@@ -13,7 +13,7 @@ import {
   updateUser,
 } from "@/services/user.service";
 
-const LIMIT = 4;
+const LIMIT = 5;
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);

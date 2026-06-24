@@ -24,8 +24,8 @@ export default function TokoSayaPage() {
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          err?.message ||
-          "Gagal memuat profil toko Anda."
+        err?.message ||
+        "Gagal memuat profil toko Anda."
       );
     } finally {
       setLoading(false);
@@ -206,7 +206,7 @@ export default function TokoSayaPage() {
             {/* Foto Bukti */}
             <div className="block">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Foto Bukti / Perbaikan (Opsional)</span>
-              <div className="mt-2 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-4 hover:bg-slate-100/50 transition relative overflow-hidden min-h-36">
+              <div className="mt-2 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-4 hover:bg-slate-100/50 transition relative overflow-hidden min-h-70">
                 {fotoBuktiPreview ? (
                   <>
                     <img src={fotoBuktiPreview} alt="Preview Foto Bukti" className="absolute inset-0 w-full h-full object-cover" />

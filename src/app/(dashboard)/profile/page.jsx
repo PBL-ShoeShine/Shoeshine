@@ -4,21 +4,22 @@ import { useEffect, useState } from "react";
 import { CheckCircle2, X } from "lucide-react";
 import ProfileCard from "@/components/profile/ProfileCard";
 import ProfileForm from "@/components/profile/ProfileForm";
-
-const adminProfile = {
-  name: "Nama Superadmin",
-  email: "superadmin@shoeshine.com",
-  role: "Master Access",
-  joinedAt: "Okt 2023",
-  avatar: "/images/avatar.jpg",
-};
-
-const PROFILE_STORAGE_KEY = "adminProfile";
+import {
+  getAdminProfile,
+  updateAdminProfile,
+  updateAdminProfilePicture,
+  changePasswordDirect,
+} from "@/services/profile.service";
 
 export default function ProfilePage() {
-  const [name, setName] = useState(adminProfile.name);
-  const [email, setEmail] = useState(adminProfile.email);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+  const [role, setRole] = useState("SuperAdmin");
+  const [joinedAt, setJoinedAt] = useState("Okt 2023");
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState({
     title: "Profil berhasil diperbarui",
@@ -26,37 +27,56 @@ export default function ProfilePage() {
     type: "success",
   });
   const [avatar, setAvatar] = useState({
-    src: adminProfile.avatar,
+    src: "",
     fileName: "",
   });
+  const [avatarFile, setAvatarFile] = useState(null);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
+    async function loadProfile() {
       try {
-        const savedProfile = JSON.parse(
-          localStorage.getItem(PROFILE_STORAGE_KEY) || "null",
-        );
+        const response = await getAdminProfile();
+        if (response.success && response.data) {
+          const user = response.data;
+          setName(user.nama || user.name || "");
+          setEmail(user.email || "");
+          
+          let roleName = "SuperAdmin";
+          if (user.jenis_role === "superadmin" || user.role === "superadmin") {
+            roleName = "SuperAdmin";
+          } else if (user.jenis_role || user.role) {
+            roleName = user.jenis_role || user.role;
+          }
+          setRole(roleName);
 
-        if (!savedProfile) return;
-
-        setName(savedProfile.name || adminProfile.name);
-        setEmail(savedProfile.email || adminProfile.email);
-        setAvatar({
-          src: savedProfile.avatar || adminProfile.avatar,
-          fileName: savedProfile.avatarFileName || "",
-        });
-      } catch {
-        localStorage.removeItem(PROFILE_STORAGE_KEY);
+          if (user.created_at) {
+            const date = new Date(user.created_at);
+            const months = [
+              "Jan", "Feb", "Mar", "Apr", "Mei", "Jun", 
+              "Jul", "Agt", "Sep", "Okt", "Nov", "Des"
+            ];
+            setJoinedAt(`${months[date.getMonth()]} ${date.getFullYear()}`);
+          }
+          
+          setAvatar({
+            src: user.path_gambar || "",
+            fileName: "",
+          });
+        }
+      } catch (err) {
+        console.error("Gagal memuat profil dari backend:", err);
+      } finally {
+        setLoading(false);
       }
-    }, 0);
-
-    return () => window.clearTimeout(timer);
+    }
+    loadProfile();
   }, []);
 
   const profile = {
-    ...adminProfile,
     name,
     email,
+    role,
+    joinedAt,
     avatar: avatar.src,
   };
 
@@ -86,6 +106,7 @@ export default function ProfilePage() {
         src: reader.result,
         fileName: file.name,
       });
+      setAvatarFile(file);
     };
 
     reader.readAsDataURL(file);
@@ -121,28 +142,73 @@ export default function ProfilePage() {
     window.dispatchEvent(new Event("storage"));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setSubmitting(true);
 
-    localStorage.setItem(
-      PROFILE_STORAGE_KEY,
-      JSON.stringify({
-        name,
-        email,
-        role: adminProfile.role,
-        joinedAt: adminProfile.joinedAt,
-        avatar: avatar.src,
-        avatarFileName: avatar.fileName,
-      }),
-    );
-    persistNavbarUser(name, email, avatar.src);
-    setPassword("");
+    try {
+      // 1. Update text data if name or email changed
+      let emailChanged = false;
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      const currentEmail = storedUser.email || "";
+      
+      const textPayload = { nama: name };
+      if (email.trim() !== currentEmail.trim()) {
+        textPayload.email = email.trim();
+        emailChanged = true;
+      }
 
-    openPopup({
-      title: "Profil berhasil diperbarui",
-      description: "Perubahan informasi profil SuperAdmin sudah tersimpan.",
-      type: "success",
-    });
+      await updateAdminProfile(textPayload);
+
+      // 2. Update avatar picture if file was uploaded
+      let avatarUrl = avatar.src;
+      if (avatarFile) {
+        const photoResponse = await updateAdminProfilePicture(avatarFile);
+        if (photoResponse.success) {
+          avatarUrl = photoResponse.url;
+        }
+      }
+
+      // 3. Update password if password field is filled
+      if (password) {
+        if (!oldPassword) {
+          throw new Error("Password lama wajib diisi untuk mengubah password.");
+        }
+        await changePasswordDirect({
+          oldPassword,
+          newPassword: password,
+        });
+      }
+
+      // 4. Update Navbar / localStorage context
+      persistNavbarUser(name, emailChanged ? currentEmail : email, avatarUrl);
+
+      // Reset fields
+      setPassword("");
+      setOldPassword("");
+      setAvatarFile(null);
+
+      openPopup({
+        title: "Profil diperbarui",
+        description: emailChanged
+          ? "Informasi berhasil diperbarui. Silakan verifikasi email baru Anda melalui tautan yang dikirim."
+          : "Perubahan informasi profil SuperAdmin berhasil disimpan.",
+        type: "success",
+      });
+    } catch (err) {
+      console.error("Gagal menyimpan profil:", err);
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Gagal menyimpan perubahan profil.";
+      openPopup({
+        title: "Perubahan gagal",
+        description: message,
+        type: "error",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const popupIconClass =
@@ -157,6 +223,17 @@ export default function ProfilePage() {
     popupMessage.type === "error"
       ? "shadow-red-100/70"
       : "shadow-blue-100/60";
+
+  if (loading) {
+    return (
+      <div className="grid min-h-[400px] place-items-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#3f83f8] border-t-transparent"></div>
+          <p className="text-sm font-semibold text-slate-500">Memuat profil...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-6xl">
@@ -173,10 +250,12 @@ export default function ProfilePage() {
           name={name}
           email={email}
           password={password}
+          oldPassword={oldPassword}
           avatar={avatar}
           onNameChange={setName}
           onEmailChange={setEmail}
           onPasswordChange={setPassword}
+          onOldPasswordChange={setOldPassword}
           onAvatarChange={handleAvatarChange}
           onSubmit={handleSubmit}
         />

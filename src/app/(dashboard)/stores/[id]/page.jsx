@@ -30,8 +30,8 @@ export default function StoreDetailPage({ params }) {
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          err?.message ||
-          "Gagal memuat detail toko.",
+        err?.message ||
+        "Gagal memuat detail toko.",
       );
     } finally {
       setLoading(false);
@@ -55,7 +55,7 @@ export default function StoreDetailPage({ params }) {
         status_verifikasi: "suspended",
         alasan_penangguhan: suspendModal.reason.trim()
       });
-      alert(`Toko "${store.nm_toko}" berhasil ditangguhkan.`);
+
       setSuspendModal({ open: false, reason: "" });
       await fetchDetail();
     } catch (err) {

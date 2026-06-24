@@ -2,10 +2,12 @@ export default function ProfileForm({
   name,
   email,
   password,
+  oldPassword,
   avatar,
   onNameChange,
   onEmailChange,
   onPasswordChange,
+  onOldPasswordChange,
   onAvatarChange,
   onSubmit,
 }) {
@@ -73,6 +75,19 @@ export default function ProfileForm({
         </p>
 
         <label className="mt-6 block">
+          <span className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
+            Password Lama
+          </span>
+          <input
+            type="password"
+            value={oldPassword}
+            onChange={(event) => onOldPasswordChange(event.target.value)}
+            placeholder="Masukkan password lama untuk mengubah password"
+            className="mt-2 h-12 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
+          />
+        </label>
+
+        <label className="mt-4 block">
           <span className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
             Password Baru
           </span>

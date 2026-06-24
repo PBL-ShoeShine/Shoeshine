@@ -7,7 +7,7 @@ import StoreStats from "@/components/stores/StoreStats";
 import StoreTable from "@/components/stores/StoreTable";
 import { getStores } from "@/services/store.service";
 
-const LIMIT = 10;
+const LIMIT = 5;
 
 export default function StoresPage() {
   const [shops, setShops] = useState([]);
