@@ -128,7 +128,7 @@ export default function LoginPage() {
 
         <form className="space-y-5" onSubmit={handleSubmit}>
           <label className="block">
-            <span className="text-sm font-bold text-slate-700">Email atau Username</span>
+            <span className="text-sm font-bold text-slate-700">Email</span>
             <span className="mt-2 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus-within:border-blue-400 focus-within:bg-white">
               <Mail className="h-5 w-5 text-slate-400" aria-hidden="true" />
               <input
