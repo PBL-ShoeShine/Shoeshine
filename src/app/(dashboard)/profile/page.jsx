@@ -23,7 +23,7 @@ export default function ProfilePage() {
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState({
     title: "Profil berhasil diperbarui",
-    description: "Perubahan informasi profil SuperAdmin sudah tersimpan.",
+    description: "Perubahan informasi profil sudah tersimpan.",
     type: "success",
   });
   const [avatar, setAvatar] = useState({
@@ -192,7 +192,7 @@ export default function ProfilePage() {
         title: "Profil diperbarui",
         description: emailChanged
           ? "Informasi berhasil diperbarui. Silakan verifikasi email baru Anda melalui tautan yang dikirim."
-          : "Perubahan informasi profil SuperAdmin berhasil disimpan.",
+          : "Perubahan informasi profil berhasil disimpan.",
         type: "success",
       });
     } catch (err) {

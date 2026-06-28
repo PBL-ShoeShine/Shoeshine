@@ -11,7 +11,7 @@ export default function DaftarTokoPage() {
   const [nm_toko, setNmToko] = useState("");
   const [desk_toko, setDeskToko] = useState("");
   const [alamat_toko, setAlamatToko] = useState("");
-  const [spesialisasi, setSpesialisasi] = useState("Sneakers");
+  const [spesialisasi, setSpesialisasi] = useState("");
   const [jam_buka, setJamBuka] = useState("08:00");
   const [jam_tutup, setJamTutup] = useState("20:00");
 
@@ -31,22 +31,161 @@ export default function DaftarTokoPage() {
     }
   }, [router]);
 
-  const handleFileChange = (e, setFile, setPreview) => {
+  const compressImage = (file, maxSizeInMB = 2) => {
+    return new Promise((resolve, reject) => {
+      if (file.size <= maxSizeInMB * 1024 * 1024) {
+        resolve(file);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+
+          // Downscale dimension if extremely large
+          const maxDimension = 1600;
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          let quality = 0.7;
+          const getBlob = (q) => {
+            return new Promise((res) => {
+              canvas.toBlob((blob) => res(blob), "image/jpeg", q);
+            });
+          };
+
+          const tryCompress = async () => {
+            let blob = await getBlob(quality);
+            while (blob.size > maxSizeInMB * 1024 * 1024 && quality > 0.1) {
+              quality -= 0.15;
+              blob = await getBlob(quality);
+            }
+            const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+              type: "image/jpeg",
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          };
+
+          tryCompress().catch(reject);
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  };
+
+  const handleFileChange = async (e, setFile, setPreview, label) => {
     const file = e.target.files[0];
     if (file) {
-      setFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+      if (!["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(file.type)) {
+        setError(`Format ${label} harus berupa gambar (JPG, JPEG, PNG, atau WEBP).`);
+        e.target.value = "";
+        setFile(null);
+        setPreview(null);
+        return;
+      }
+      setError("");
+
+      try {
+        let fileToProcess = file;
+        if (file.size > 2 * 1024 * 1024) {
+          setError(`Mengompresi ${label} (asli ${Math.round(file.size / 1024 / 1024 * 100) / 100}MB)...`);
+          fileToProcess = await compressImage(file, 2);
+          setError(""); // Clear compression loading text
+        }
+        setFile(fileToProcess);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreview(reader.result);
+        };
+        reader.readAsDataURL(fileToProcess);
+      } catch (err) {
+        console.error("Gagal mengompresi gambar:", err);
+        setError(`Gagal memproses gambar ${label}.`);
+      }
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!fotoToko || !fotoKtp) {
-      setError("Foto toko dan Foto KTP wajib diunggah.");
+
+    // Validasi input form
+    if (!nm_toko.trim()) {
+      setError("Nama Toko wajib diisi.");
+      return;
+    }
+    if (nm_toko.trim().length < 3) {
+      setError("Nama Toko minimal terdiri dari 3 karakter.");
+      return;
+    }
+
+    if (!spesialisasi.trim()) {
+      setError("Spesialisasi wajib diisi.");
+      return;
+    }
+    if (spesialisasi.trim().length < 3) {
+      setError("Spesialisasi minimal terdiri dari 3 karakter (contoh: Sneakers, Leather, dll).");
+      return;
+    }
+
+    if (!alamat_toko.trim()) {
+      setError("Alamat Lengkap Toko wajib diisi.");
+      return;
+    }
+    if (alamat_toko.trim().length < 10) {
+      setError("Alamat Lengkap Toko minimal terdiri dari 10 karakter.");
+      return;
+    }
+
+    if (!jam_buka) {
+      setError("Jam Buka wajib diisi.");
+      return;
+    }
+    if (!jam_tutup) {
+      setError("Jam Tutup wajib diisi.");
+      return;
+    }
+    if (jam_buka === jam_tutup) {
+      setError("Jam Buka dan Jam Tutup tidak boleh sama.");
+      return;
+    }
+
+    if (!desk_toko.trim()) {
+      setError("Deskripsi Toko wajib diisi.");
+      return;
+    }
+    if (desk_toko.trim().length < 10) {
+      setError("Deskripsi Toko minimal terdiri dari 10 karakter.");
+      return;
+    }
+
+    if (!fotoToko) {
+      setError("Foto Toko wajib diunggah.");
+      return;
+    }
+
+    if (!fotoKtp) {
+      setError("Foto KTP Pemilik wajib diunggah.");
       return;
     }
 
@@ -152,16 +291,14 @@ export default function DaftarTokoPage() {
             <span className="text-sm font-bold text-slate-700">Spesialisasi</span>
             <span className="mt-2 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus-within:border-blue-400 focus-within:bg-white">
               <Sparkles className="h-5 w-5 text-slate-400" />
-              <select
+              <input
+                type="text"
                 value={spesialisasi}
                 onChange={(e) => setSpesialisasi(e.target.value)}
-                className="w-full bg-transparent text-sm text-slate-900 outline-none font-semibold text-slate-800"
-              >
-                <option value="Sneakers">Sneakers</option>
-                <option value="Leather">Leather</option>
-                <option value="Boots">Boots</option>
-                <option value="Canvas">Canvas</option>
-              </select>
+                required
+                className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 font-semibold"
+                placeholder="Contoh: Sneakers, Leather, dll"
+              />
             </span>
           </label>
 
@@ -248,8 +385,8 @@ export default function DaftarTokoPage() {
               <input
                 type="file"
                 accept="image/*"
-                required
-                onChange={(e) => handleFileChange(e, setFotoToko, setFotoTokoPreview)}
+                required={!fotoToko}
+                onChange={(e) => handleFileChange(e, setFotoToko, setFotoTokoPreview, "Foto Toko")}
                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
               />
             </div>
@@ -278,8 +415,8 @@ export default function DaftarTokoPage() {
               <input
                 type="file"
                 accept="image/*"
-                required
-                onChange={(e) => handleFileChange(e, setFotoKtp, setFotoKtpPreview)}
+                required={!fotoKtp}
+                onChange={(e) => handleFileChange(e, setFotoKtp, setFotoKtpPreview, "Foto KTP Pemilik")}
                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
               />
             </div>

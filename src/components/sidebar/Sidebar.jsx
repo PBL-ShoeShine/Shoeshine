@@ -79,7 +79,7 @@ export default function Sidebar() {
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-[280px] bg-[#3f83f8] md:flex md:flex-col">
-      <SidebarHeader />
+      <SidebarHeader role={role} />
       <nav className="flex flex-1 flex-col gap-2 px-4">
         {menuItems.map((item) => (
           <SidebarItem
