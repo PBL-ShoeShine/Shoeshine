@@ -27,6 +27,10 @@ export function middleware(request) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  if (pathname === "/reviews" || pathname.startsWith("/reviews/")) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
   if (pathname === "/login" && token && role?.toLowerCase() !== "staff") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
