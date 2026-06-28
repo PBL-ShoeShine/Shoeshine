@@ -272,13 +272,13 @@ export default function TokoSayaPage() {
             <span className="font-semibold text-slate-900 mt-1 block">{desk_toko || "-"}</span>
           </div>
 
-          <div>
+          {/* <div>
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">Jam Operasional</span>
             <span className="font-semibold text-slate-900 mt-1 block flex items-center gap-1.5">
               <Clock className="h-4 w-4 text-slate-400" />
               {jam_buka} - {jam_tutup}
             </span>
-          </div>
+          </div> */}
 
           <div className="md:col-span-2">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">Alamat Toko</span>

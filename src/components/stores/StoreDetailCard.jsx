@@ -97,8 +97,6 @@ export default function StoreDetailCard({ store }) {
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <InfoItem label="Nama Toko" value={store.nm_toko} />
           <InfoItem label="Spesialisasi" value={store.spesialisasi} />
-          <InfoItem label="Jam Buka" value={store.jam_buka} />
-          <InfoItem label="Jam Tutup" value={store.jam_tutup} />
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
               Status Verifikasi

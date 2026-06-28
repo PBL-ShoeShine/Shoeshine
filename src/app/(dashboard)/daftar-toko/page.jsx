@@ -12,8 +12,6 @@ export default function DaftarTokoPage() {
   const [desk_toko, setDeskToko] = useState("");
   const [alamat_toko, setAlamatToko] = useState("");
   const [spesialisasi, setSpesialisasi] = useState("");
-  const [jam_buka, setJamBuka] = useState("08:00");
-  const [jam_tutup, setJamTutup] = useState("20:00");
 
   const [fotoToko, setFotoToko] = useState(null);
   const [fotoKtp, setFotoKtp] = useState(null);
@@ -157,18 +155,7 @@ export default function DaftarTokoPage() {
       return;
     }
 
-    if (!jam_buka) {
-      setError("Jam Buka wajib diisi.");
-      return;
-    }
-    if (!jam_tutup) {
-      setError("Jam Tutup wajib diisi.");
-      return;
-    }
-    if (jam_buka === jam_tutup) {
-      setError("Jam Buka dan Jam Tutup tidak boleh sama.");
-      return;
-    }
+
 
     if (!desk_toko.trim()) {
       setError("Deskripsi Toko wajib diisi.");
@@ -194,16 +181,13 @@ export default function DaftarTokoPage() {
     setSuccess("");
 
     try {
-      const formattedBuka = jam_buka.length === 5 ? `${jam_buka}:00` : jam_buka;
-      const formattedTutup = jam_tutup.length === 5 ? `${jam_tutup}:00` : jam_tutup;
-
       const formData = new FormData();
       formData.append("nm_toko", nm_toko);
       formData.append("desk_toko", desk_toko);
       formData.append("alamat_toko", alamat_toko);
       formData.append("spesialisasi", spesialisasi);
-      formData.append("jam_buka", formattedBuka);
-      formData.append("jam_tutup", formattedTutup);
+      formData.append("jam_buka", "08:00:00");
+      formData.append("jam_tutup", "20:00:00");
       formData.append("foto_toko", fotoToko);
       formData.append("foto_ktp", fotoKtp);
 
@@ -318,34 +302,7 @@ export default function DaftarTokoPage() {
             </span>
           </label>
 
-          {/* Jam Operasional */}
-          <label className="block">
-            <span className="text-sm font-bold text-slate-700">Jam Buka</span>
-            <span className="mt-2 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus-within:border-blue-400 focus-within:bg-white">
-              <Clock className="h-5 w-5 text-slate-400" />
-              <input
-                type="time"
-                value={jam_buka}
-                onChange={(e) => setJamBuka(e.target.value)}
-                required
-                className="w-full bg-transparent text-sm text-slate-900 outline-none font-semibold"
-              />
-            </span>
-          </label>
 
-          <label className="block">
-            <span className="text-sm font-bold text-slate-700">Jam Tutup</span>
-            <span className="mt-2 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus-within:border-blue-400 focus-within:bg-white">
-              <Clock className="h-5 w-5 text-slate-400" />
-              <input
-                type="time"
-                value={jam_tutup}
-                onChange={(e) => setJamTutup(e.target.value)}
-                required
-                className="w-full bg-transparent text-sm text-slate-900 outline-none font-semibold"
-              />
-            </span>
-          </label>
 
           {/* Deskripsi */}
           <label className="block col-span-2">
