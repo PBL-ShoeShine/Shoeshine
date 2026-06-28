@@ -14,15 +14,20 @@ const protectedRoutes = [
 export function middleware(request) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("token")?.value;
+  const role = request.cookies.get("role")?.value;
   const isProtected = protectedRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
+
+  if (isProtected && role?.toLowerCase() === "staff") {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
 
   if (isProtected && !token) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (pathname === "/login" && token) {
+  if (pathname === "/login" && token && role?.toLowerCase() !== "staff") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

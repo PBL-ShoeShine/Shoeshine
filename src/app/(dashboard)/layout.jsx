@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar/Navbar";
 import Sidebar from "@/components/sidebar/Sidebar";
-import { isAuthenticated } from "@/lib/auth";
+import { isAuthenticated, getUser } from "@/lib/auth";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
@@ -12,6 +12,12 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     if (!isAuthenticated()) {
       router.replace("/login");
+    } else {
+      const user = getUser();
+      const role = user?.jenis_role || user?.role || user?.role_name || user?.user?.role;
+      if (role?.toLowerCase() === "staff") {
+        router.replace("/login");
+      }
     }
   }, [router]);
 

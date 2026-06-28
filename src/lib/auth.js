@@ -14,6 +14,14 @@ export function saveAuth(token, user) {
     expires: 1,
     sameSite: "lax",
   });
+
+  const role = user?.jenis_role || user?.role || user?.role_name || user?.user?.role;
+  if (role) {
+    Cookies.set("role", role, {
+      expires: 1,
+      sameSite: "lax",
+    });
+  }
 }
 
 export function getToken() {
@@ -38,6 +46,7 @@ export function clearAuth() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
   Cookies.remove(TOKEN_KEY);
+  Cookies.remove("role");
 }
 
 export function isAuthenticated() {
