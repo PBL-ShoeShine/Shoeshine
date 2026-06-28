@@ -120,9 +120,9 @@ export default function LoginPage() {
           <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#3f83f8] text-white shadow-sm">
             <Sparkles className="h-7 w-7" aria-hidden="true" />
           </div>
-          <h1 className="mt-5 text-3xl font-bold text-slate-900">ShoeShine Admin</h1>
+          <h1 className="mt-5 text-3xl font-bold text-slate-900">ShoeShine</h1>
           <p className="mt-2 text-sm font-medium text-slate-500">
-            Masuk ke workspace SuperAdmin CareKicks
+            Masuk ke workspace ShoeShine
           </p>
         </div>
 
