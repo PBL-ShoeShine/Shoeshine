@@ -237,12 +237,7 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-900">Profil Saya</h1>
-        <p className="mt-2 text-sm font-medium text-slate-500">
-          Kelola informasi akun dan preferensi keamanan Anda.
-        </p>
-      </div>
+      
 
       <div className="grid gap-6 lg:grid-cols-[360px_1fr] lg:items-start">
         <ProfileCard profile={profile} />
