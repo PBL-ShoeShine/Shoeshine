@@ -24,11 +24,6 @@ const fallbackStats = [
     badge: "Pending",
     badgeVariant: "warning",
   },
-  {
-    title: "Total Pendapatan",
-    value: "Rp 0",
-    subtitle: "Akumulasi dari detail order",
-  },
 ];
 
 const normalizeDashboardData = (response) => {
@@ -44,7 +39,6 @@ const normalizeDashboardData = (response) => {
         badge: "Pending",
         badgeVariant: "warning",
       },
-      stats.revenue || fallbackStats[3],
     ],
     orderTrend: data.orderTrend || [],
     recentActivities: data.recentActivities || [],
@@ -95,6 +89,17 @@ export default function DashboardPage() {
     };
   }, []);
 
+  if (loading) {
+    return (
+      <div className="grid min-h-[400px] place-items-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#3f83f8] border-t-transparent"></div>
+          <p className="text-sm font-semibold text-slate-500">Memuat data dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {error ? (
@@ -103,21 +108,19 @@ export default function DashboardPage() {
         </div>
       ) : null}
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {dashboard.stats.map((stat) => (
           <StatCard key={stat.title} {...stat} />
         ))}
       </section>
 
-      {loading ? (
-        <div className="rounded-xl border border-blue-100 bg-white px-5 py-4 text-sm font-semibold text-slate-500 shadow-sm">
-          Memuat data dashboard...
+      <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr] xl:items-start">
+        <div className="min-w-0">
+          <OrderTrendChart data={dashboard.orderTrend} />
         </div>
-      ) : null}
-
-      <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <OrderTrendChart data={dashboard.orderTrend} />
-        <RecentActivityTable data={dashboard.recentActivities} />
+        <div className="min-w-0">
+          <RecentActivityTable data={dashboard.recentActivities} />
+        </div>
       </div>
     </div>
   );

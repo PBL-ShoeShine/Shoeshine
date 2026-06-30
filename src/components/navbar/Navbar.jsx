@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { LogOut } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { clearAuth } from "@/lib/auth";
@@ -12,6 +12,8 @@ const pageTitles = {
   "/stores": "Daftar Toko",
   "/verification": "Verifikasi Pendaftaran",
   "/reviews": "Review",
+  "/daftar-toko": "Pendaftaran Toko",
+  "/toko-saya": "Toko Saya",
 };
 
 const subscribeToStorage = (callback) => {
@@ -41,31 +43,105 @@ export default function Navbar() {
     }
   }, [userSnapshot]);
 
+  const [avatarError, setAvatarError] = useState(false);
+
+  useEffect(() => {
+    setAvatarError(false);
+  }, [user?.path_gambar]);
+
+  const role = useMemo(() => {
+    return user?.jenis_role || user?.role || "superadmin";
+  }, [user]);
+
+  const initials = useMemo(() => {
+    const displayName = user?.nama || user?.name || user?.username || (role === "superadmin" ? "SuperAdmin" : "Pengguna");
+    return displayName
+      .split(" ")
+      .filter(Boolean)
+      .map((word) => word[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  }, [user, role]);
+
+  const title = useMemo(() => {
+    if (pageTitles[pathname]) {
+      return pageTitles[pathname];
+    }
+    if (role === "customer") {
+      return "Pendaftaran Toko";
+    }
+    if (role === "shops_admin") {
+      return "Toko Saya";
+    }
+    return "Dashboard Statistik";
+  }, [role, pathname]);
+
+  const subtitle = useMemo(() => {
+    if (role === "customer") {
+      if (pathname === "/profile") {
+        return "Kelola informasi profil Anda";
+      }
+      if (pathname === "/toko-saya") {
+        return "Status pendaftaran toko Anda";
+      }
+      return "Formulir pendaftaran toko baru";
+    }
+
+    if (role === "shops_admin") {
+      if (pathname === "/profile") {
+        return "Kelola informasi profil Anda";
+      }
+      if (pathname === "/toko-saya") {
+        return "Kelola dan pantau operasional toko Anda";
+      }
+      return "Dashboard operasional toko";
+    }
+
+    // Default / SuperAdmin
+    if (pathname === "/profile") {
+      return "Kelola informasi profil SuperAdmin";
+    }
+    return "Ringkasan operasional SuperAdmin";
+  }, [role, pathname]);
+
   const handleLogout = () => {
     clearAuth();
-    router.replace("/login");
+    window.location.replace("/login");
   };
 
   return (
     <header className="sticky top-0 z-20 flex min-h-20 items-center justify-between border-b border-slate-200 bg-white px-4 py-4 md:px-8">
       <div>
         <h2 className="text-xl font-bold text-slate-900 md:text-2xl">
-          {pageTitles[pathname] || "Dashboard Statistik"}
+          {title}
         </h2>
-        <p className="mt-1 text-sm text-slate-500">Ringkasan operasional SuperAdmin</p>
+        <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
       </div>
 
       <div className="flex items-center gap-3">
         <div className="hidden text-right sm:block">
           <p className="text-sm font-bold text-slate-900">
-            {user?.name || user?.username || "SuperAdmin"}
+            {user?.nama || user?.name || user?.username || (role === "superadmin" ? "SuperAdmin" : "Pengguna")}
           </p>
           <p className="text-xs font-medium text-slate-500">
-            {user?.email || "admin@shoeshine.id"}
+            {user?.email || (role === "superadmin" ? "admin@shoeshine.id" : "")}
           </p>
         </div>
-        <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#3f83f8] text-sm font-bold text-white shadow-sm">
-          SA
+        <div className="relative h-11 w-11 overflow-hidden rounded-xl border border-slate-200 bg-[#3f83f8] text-white shadow-sm">
+          {user?.path_gambar && !avatarError ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={user.path_gambar}
+              alt={user.name || "User Avatar"}
+              className="h-full w-full object-cover"
+              onError={() => setAvatarError(true)}
+            />
+          ) : (
+            <div className="grid h-full w-full place-items-center text-sm font-bold text-white">
+              {initials}
+            </div>
+          )}
         </div>
         <button
           type="button"

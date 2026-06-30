@@ -12,13 +12,18 @@ export default function OrderTrendChart({ data = fallbackTrend }) {
   const maxValue = Math.max(...trend.map((item) => Number(item.value || 0)), 1);
   const points = trend.map((item, index) => {
     const x = 45 + index * (595 / Math.max(trend.length - 1, 1));
-    const y = 190 - (Number(item.value || 0) / maxValue) * 135;
+    const y = 180 - (Number(item.value || 0) / maxValue) * 125;
 
     return { ...item, x, y };
   });
+  
   const path = points
     .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
     .join(" ");
+
+  const areaPath = points.length 
+    ? `${path} L ${points[points.length - 1].x} 190 L ${points[0].x} 190 Z`
+    : "";
 
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -35,10 +40,17 @@ export default function OrderTrendChart({ data = fallbackTrend }) {
       <div className="mt-6 overflow-hidden">
         <svg
           viewBox="0 0 680 260"
-          className="h-[260px] w-full"
+          className="h-auto w-full"
           role="img"
           aria-label="Grafik tren pesanan bulanan"
         >
+          <defs>
+            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3f83f8" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="#3f83f8" stopOpacity="0.0" />
+            </linearGradient>
+          </defs>
+
           {[40, 90, 140, 190].map((y) => (
             <line
               key={y}
@@ -46,34 +58,55 @@ export default function OrderTrendChart({ data = fallbackTrend }) {
               x2="660"
               y1={y}
               y2={y}
-              stroke="#e2e8f0"
+              stroke="#f1f5f9"
+              strokeDasharray="4 4"
               strokeWidth="1"
             />
           ))}
-          <path d={path} fill="none" stroke="#94a3b8" strokeLinecap="round" strokeLinejoin="round" strokeWidth="12" />
-          <path d={path} fill="none" stroke="#475569" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" />
+
+          {areaPath && (
+            <path d={areaPath} fill="url(#chartGradient)" />
+          )}
+
+          <path 
+            d={path} 
+            fill="none" 
+            stroke="#3f83f8" 
+            strokeLinecap="round" 
+            strokeLinejoin="round" 
+            strokeWidth="3" 
+          />
+
           {points.map((point) => (
             <g key={point.label}>
-              <circle cx={point.x} cy={point.y} r="5" fill="#3f83f8" />
+              <circle 
+                cx={point.x} 
+                cy={point.y} 
+                r="6" 
+                fill="#ffffff" 
+                stroke="#3f83f8" 
+                strokeWidth="3" 
+              />
               <text
                 x={point.x}
-                y={point.y - 16}
+                y={point.y - 12}
                 textAnchor="middle"
-                className="fill-slate-500 text-[12px] font-bold"
+                className="fill-slate-700 text-[11px] font-extrabold"
               >
                 {point.value}
               </text>
             </g>
           ))}
-          {trend.map((month, index) => (
+
+          {points.map((point) => (
             <text
-              key={month.label}
-              x={55 + index * 116}
-              y="238"
+              key={point.label}
+              x={point.x}
+              y="225"
               textAnchor="middle"
-              className="fill-slate-500 text-[13px] font-bold"
+              className="fill-slate-400 text-[12px] font-bold"
             >
-              {month.label}
+              {point.label}
             </text>
           ))}
         </svg>

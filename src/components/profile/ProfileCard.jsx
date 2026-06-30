@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ProfileCard({ profile }) {
   const [imageError, setImageError] = useState(false);
-  const initials = profile.name
+
+  useEffect(() => {
+    setImageError(false);
+  }, [profile.avatar]);
+  const initials = (profile.name || "SuperAdmin")
     .split(" ")
+    .filter(Boolean)
     .map((word) => word[0])
     .join("")
     .slice(0, 2)

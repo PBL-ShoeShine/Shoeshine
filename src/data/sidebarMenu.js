@@ -1,6 +1,5 @@
 import {
   LayoutDashboard,
-  MessageSquareText,
   ShieldCheck,
   Store,
   User,
@@ -33,9 +32,9 @@ export const sidebarMenu = [
     href: "/verification",
     icon: ShieldCheck,
   },
-  {
-    label: "Review",
-    href: "/reviews",
-    icon: MessageSquareText,
-  },
+  // {
+  //   label: "Review",
+  //   href: "/reviews",
+  //   icon: MessageSquareText,
+  // },
 ];
